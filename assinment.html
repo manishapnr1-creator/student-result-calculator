@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Result Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" href="#">Result Calculator</a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="navMenu" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#savedModal">
+            View Saved Results
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Alert -->
+<div id="successAlert" class="alert alert-success text-center m-3 d-none">
+  Result saved successfully!
+</div>
+
+<!-- Main Container -->
+<div class="container mt-4">
+  <div class="row g-4">
+
+    <!-- Input Form -->
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+          Enter Marks
+        </div>
+        <div class="card-body">
+          <input type="text" id="name" class="form-control mb-2" placeholder="Student Name">
+
+          <input type="number" class="form-control mb-2" placeholder="Maths" id="m1">
+          <input type="number" class="form-control mb-2" placeholder="Science" id="m2">
+          <input type="number" class="form-control mb-2" placeholder="English" id="m3">
+          <input type="number" class="form-control mb-2" placeholder="Computer" id="m4">
+          <input type="number" class="form-control mb-3" placeholder="Social" id="m5">
+
+          <button class="btn btn-primary w-100" onclick="calculateResult()">
+            Calculate Result
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Card -->
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white">
+          Result
+        </div>
+        <div class="card-body" id="resultBox">
+          <p class="text-muted">Result will appear here</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="savedModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Saved Results</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="savedResults">
+        <p class="text-muted">No saved data</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+function calculateResult() {
+  let name = document.getElementById("name").value;
+  let marks = [
+    Number(m1.value),
+    Number(m2.value),
+    Number(m3.value),
+    Number(m4.value),
+    Number(m5.value)
+  ];
+
+  if (name === "" || marks.some(m => m < 0 || m > 100)) {
+    alert("Please enter valid details");
+    return;
+  }
+
+  let total = marks.reduce((a, b) => a + b, 0);
+  let percentage = (total / 500) * 100;
+  let grade = percentage >= 80 ? "A" :
+              percentage >= 60 ? "B" :
+              percentage >= 40 ? "C" : "Fail";
+
+  let resultHTML = `
+    <h5>${name}</h5>
+    <p>Total: <b>${total}</b></p>
+    <p>Percentage: <b>${percentage.toFixed(2)}%</b></p>
+    <p>Grade: <b>${grade}</b></p>
+  `;
+
+  document.getElementById("resultBox").innerHTML = resultHTML;
+
+  // Save to LocalStorage
+  let saved = JSON.parse(localStorage.getItem("results")) || [];
+  saved.push({ name, total, percentage, grade });
+  localStorage.setItem("results", JSON.stringify(saved));
+
+  // Show alert
+  document.getElementById("successAlert").classList.remove("d-none");
+  setTimeout(() => {
+    document.getElementById("successAlert").classList.add("d-none");
+  }, 2000);
+
+  loadSavedResults();
+}
+
+function loadSavedResults() {
+  let saved = JSON.parse(localStorage.getItem("results")) || [];
+  let output = "";
+
+  saved.forEach((r, i) => {
+    output += `
+      <div class="border p-2 mb-2">
+        <b>${i + 1}. ${r.name}</b><br>
+        Total: ${r.total}, ${r.percentage.toFixed(2)}%, Grade: ${r.grade}
+      </div>
+    `;
+  });
+
+  document.getElementById("savedResults").innerHTML =
+    output || "<p>No saved data</p>";
+}
+
+loadSavedResults();
+</script>
+
+</body>
+</html>
